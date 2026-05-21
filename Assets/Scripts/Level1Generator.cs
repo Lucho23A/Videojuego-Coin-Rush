@@ -3,6 +3,9 @@ using UnityEngine.AI;
 
 public class Level1Generator : MonoBehaviour
 {
+    [Header("Modelo del personaje (arrastra Luis.glb aquí)")]
+    [SerializeField] private GameObject modeloPersonaje;
+
     void Start()
     {
         GenerateLevel();
@@ -66,9 +69,9 @@ public class Level1Generator : MonoBehaviour
         CrearEstrella(new Vector3(90, 2f, 0));
 
         // ── ENEMIGOS GOOMBA ───────────────────────────
-        CrearGoomba(new Vector3(25, 0.5f, 5));
-        CrearGoomba(new Vector3(45, 0.5f, -5));
-        CrearGoomba(new Vector3(70, 0.5f, 3));
+        CrearGoomba(new Vector3(25, 1f, 5));
+        CrearGoomba(new Vector3(45, 1f, -5));
+        CrearGoomba(new Vector3(70, 1f, 3));
 
         // ── JUGADOR ───────────────────────────────────
         CrearJugador(new Vector3(0, 1f, 0));
@@ -77,6 +80,10 @@ public class Level1Generator : MonoBehaviour
         RenderSettings.skybox = null;
         Camera.main.backgroundColor = new Color(0.4f, 0.7f, 1f);
         Camera.main.clearFlags = CameraClearFlags.SolidColor;
+
+        // ── HUD (timer, score, vidas, monedas) ────────
+        GameObject hud = new GameObject("HUDManager");
+        hud.AddComponent<HUDManager>();
     }
 
     // ── HELPERS ──────────────────────────────────────
@@ -162,30 +169,51 @@ public class Level1Generator : MonoBehaviour
         Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
         mat.color = new Color(0.5f, 0.3f, 0.1f);
         goomba.GetComponent<Renderer>().material = mat;
+        goomba.GetComponent<Collider>().isTrigger = true;
         goomba.AddComponent<GoombaIA>();
     }
 
     void CrearJugador(Vector3 pos)
     {
-        // Cuerpo
+        // Objeto raíz — tiene la física, no el visual
         GameObject jugador = new GameObject("Jugador");
         jugador.transform.position = pos;
         jugador.tag = "Player";
 
-        GameObject cuerpo = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        cuerpo.name = "Cuerpo";
-        cuerpo.transform.SetParent(jugador.transform);
-        cuerpo.transform.localPosition = Vector3.zero;
-        Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-        mat.color = new Color(0.2f, 0.5f, 1f);
-        cuerpo.GetComponent<Renderer>().material = mat;
-        Destroy(cuerpo.GetComponent<Collider>());
+        if (modeloPersonaje != null)
+        {
+            // ── Usar el modelo 3D real (Luis.glb) ─────────────────
+            GameObject modelo = Instantiate(modeloPersonaje, jugador.transform);
+            modelo.name = "ModeloPersonaje";
+            modelo.transform.localPosition = Vector3.zero;
+            modelo.transform.localRotation = Quaternion.identity;
 
-        // Física
+            // Desactivar colisiones del modelo (la física la maneja el CharacterController)
+            foreach (Collider col in modelo.GetComponentsInChildren<Collider>())
+                col.enabled = false;
+
+            // Desactivar Rigidbody si el modelo lo trae
+            foreach (Rigidbody rb in modelo.GetComponentsInChildren<Rigidbody>())
+                rb.isKinematic = true;
+        }
+        else
+        {
+            // ── Fallback: cápsula azul si no hay modelo asignado ──
+            GameObject capsula = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            capsula.name = "Cuerpo";
+            capsula.transform.SetParent(jugador.transform);
+            capsula.transform.localPosition = Vector3.zero;
+            Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            mat.color = new Color(0.2f, 0.5f, 1f);
+            capsula.GetComponent<Renderer>().material = mat;
+            Destroy(capsula.GetComponent<Collider>());
+        }
+
+        // Física (siempre en el objeto raíz, no en el modelo visual)
         CharacterController cc = jugador.AddComponent<CharacterController>();
         cc.height = 2f;
         cc.radius = 0.4f;
-        cc.center = new Vector3(0, 1f, 0);
+        cc.center = new Vector3(0f, 1f, 0f);
 
         jugador.AddComponent<JugadorController>();
 
