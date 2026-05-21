@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b718f95635fd6d9479fe04529137e06b, type: 3}
   m_Name: Char_Integrante3
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
-  characterName: Integrante 1
-  nickname: "El \xC1gil"
-  description: "Descripci\xF3n del personaje..."
-  moveSpeed: 6
-  runSpeed: 9.6
-  jumpForce: 8
+  characterName: Lucho
+  nickname: El fuerte
+  description: "El m\xE1s fuerte"
+  moveSpeed: 3.8
+  runSpeed: 6
+  jumpForce: 7
   maxHealth: 3
-  specialAbility: Doble salto
+  specialAbility: Golpe de tierra (rompe bloques)
   characterPrefab: {fileID: 0}
   portrait: {fileID: 0}

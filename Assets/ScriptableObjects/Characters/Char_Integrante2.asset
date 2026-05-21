@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b718f95635fd6d9479fe04529137e06b, type: 3}
   m_Name: Char_Integrante2
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
-  characterName: Integrante 1
-  nickname: "El \xC1gil"
-  description: "Descripci\xF3n del personaje..."
-  moveSpeed: 6
-  runSpeed: 9.6
-  jumpForce: 8
+  characterName: Mafe
+  nickname: La Saltarina
+  description: Ideal para saltos largos.
+  moveSpeed: 4.5
+  runSpeed: 7.2
+  jumpForce: 11
   maxHealth: 3
-  specialAbility: Doble salto
+  specialAbility: Salto largo + planeo corto
   characterPrefab: {fileID: 0}
   portrait: {fileID: 0}
