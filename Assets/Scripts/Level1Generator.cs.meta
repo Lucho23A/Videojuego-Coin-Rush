@@ -1,2 +1,14 @@
 fileFormatVersion: 2
 guid: 6f44f3b3c9cc14c72805571cf7cd27df
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - modeloLaura: {fileID: 919132149155446097, guid: 38dd170bf4c88b3489ace5168b75f603, type: 3}
+  - modeloLuis: {fileID: 8771091787928289351, guid: edc20276d65554740aa1dd2c08b612bd, type: 3}
+  - modeloMafe: {fileID: 8771091787928289351, guid: 8379b3894df2eb547a45e6cdf417e38a, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

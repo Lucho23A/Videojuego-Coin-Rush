@@ -3,8 +3,10 @@ using UnityEngine.AI;
 
 public class Level1Generator : MonoBehaviour
 {
-    [Header("Modelo del personaje (arrastra Luis.glb aquí)")]
-    [SerializeField] private GameObject modeloPersonaje;
+    [Header("Modelos de personajes")]
+    public GameObject modeloLaura;
+    public GameObject modeloLuis;
+    public GameObject modeloMafe;
 
     void Start()
     {
@@ -81,12 +83,10 @@ public class Level1Generator : MonoBehaviour
         Camera.main.backgroundColor = new Color(0.4f, 0.7f, 1f);
         Camera.main.clearFlags = CameraClearFlags.SolidColor;
 
-        // ── HUD (timer, score, vidas, monedas) ────────
+        // ── HUD ───────────────────────────────────────
         GameObject hud = new GameObject("HUDManager");
         hud.AddComponent<HUDManager>();
     }
-
-    // ── HELPERS ──────────────────────────────────────
 
     void CrearColina(Vector3 pos, Vector3 escala)
     {
@@ -112,7 +112,6 @@ public class Level1Generator : MonoBehaviour
 
     void CrearArbol(Vector3 pos)
     {
-        // Tronco
         GameObject tronco = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         tronco.name = "Arbol";
         tronco.transform.position = pos + Vector3.up * 1.5f;
@@ -121,7 +120,6 @@ public class Level1Generator : MonoBehaviour
         matT.color = new Color(0.4f, 0.25f, 0.1f);
         tronco.GetComponent<Renderer>().material = matT;
 
-        // Copa
         GameObject copa = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         copa.transform.position = pos + Vector3.up * 4f;
         copa.transform.localScale = new Vector3(3f, 3f, 3f);
@@ -175,30 +173,31 @@ public class Level1Generator : MonoBehaviour
 
     void CrearJugador(Vector3 pos)
     {
-        // Objeto raíz — tiene la física, no el visual
         GameObject jugador = new GameObject("Jugador");
         jugador.transform.position = pos;
         jugador.tag = "Player";
 
-        if (modeloPersonaje != null)
-        {
-            // ── Usar el modelo 3D real (Luis.glb) ─────────────────
-            GameObject modelo = Instantiate(modeloPersonaje, jugador.transform);
-            modelo.name = "ModeloPersonaje";
-            modelo.transform.localPosition = Vector3.zero;
-            modelo.transform.localRotation = Quaternion.identity;
+        // Elegir modelo según personaje seleccionado
+        GameObject[] modelos = { modeloLaura, modeloLuis, modeloMafe };
+        int idx = (GameManager.Instance != null) ? GameManager.Instance.selectedCharacterIndex : 1;
+        idx = Mathf.Clamp(idx, 0, modelos.Length - 1);
+        GameObject modeloElegido = modelos[idx];
 
-            // Desactivar colisiones del modelo (la física la maneja el CharacterController)
+        if (modeloElegido != null)
+        {
+            GameObject modelo = Instantiate(modeloElegido, jugador.transform);
+            modelo.name = "ModeloPersonaje";
+            modelo.transform.localPosition = new Vector3(0, -1f, 0);
+            modelo.transform.localRotation = Quaternion.Euler(0, 180f, 0);
+            modelo.transform.localScale    = new Vector3(1f, 1f, 1f);
             foreach (Collider col in modelo.GetComponentsInChildren<Collider>())
                 col.enabled = false;
-
-            // Desactivar Rigidbody si el modelo lo trae
             foreach (Rigidbody rb in modelo.GetComponentsInChildren<Rigidbody>())
                 rb.isKinematic = true;
         }
         else
         {
-            // ── Fallback: cápsula azul si no hay modelo asignado ──
+            // Cápsula de respaldo
             GameObject capsula = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             capsula.name = "Cuerpo";
             capsula.transform.SetParent(jugador.transform);
@@ -209,15 +208,13 @@ public class Level1Generator : MonoBehaviour
             Destroy(capsula.GetComponent<Collider>());
         }
 
-        // Física (siempre en el objeto raíz, no en el modelo visual)
+        // Física
         CharacterController cc = jugador.AddComponent<CharacterController>();
         cc.height = 2f;
         cc.radius = 0.4f;
         cc.center = new Vector3(0f, 1f, 0f);
 
         jugador.AddComponent<JugadorController>();
-
-        // Cámara
         Camera.main.transform.SetParent(null);
         jugador.AddComponent<CamaraFollow>().target = jugador.transform;
     }
